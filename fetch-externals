@@ -16,6 +16,9 @@ def system(cmd):
     print(cmd)
     os.system(cmd)
 
+def systemCaptureOutput(cmd):
+    return os.popen(cmd).read()
+
 def checkout_deps(basepath):
     depsfile = os.path.join(basepath, 'DEPS')
 
@@ -42,14 +45,15 @@ def checkout_deps(basepath):
                 system('git svn clone -q %s %s -r %s' % (url, path, rev))
             else:
                 system('git clone -n %s %s' % (url, path))
-                system('cd %s; git reset --hard %s' % (path, rev))
+                system('cd %s && git reset --hard %s' % (path, rev))
         else:
             if url.find('svn') >= 0:
-                system('cd %s; git svn fetch -q -r %s' % (path, rev))
-                system('cd %s; git reset --hard $(git svn find-rev r%s)' % (path, rev))
+                system('cd %s && git svn fetch -q -r %s' % (path, rev))
+                gitRev = systemCaptureOutput('cd %s && git svn find-rev r%s' % (path, rev))
+                system('cd %s && git reset --hard %s' % (path, gitRev))
             else:
-                system('cd %s; git fetch %s' % (path, url))
-                system('cd %s; git reset --hard %s' % (path, rev))
+                system('cd %s && git fetch %s' % (path, url))
+                system('cd %s && git reset --hard %s' % (path, rev))
 
         # and recurse
         checkout_deps(os.path.join(basepath, path))
