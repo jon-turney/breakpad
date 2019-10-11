@@ -29,7 +29,7 @@ def checkout_deps(basepath):
 
     # evaluate contents of DEPS file
     f = open(depsfile, 'r')
-    exec(f.read())
+    exec(f.read(), globals())
 
     # process the path:url pairs in deps
     for path in sorted(deps.keys()):
